@@ -9,6 +9,11 @@
     "dev": "docker-compose up",
     "dev:build": "docker-compose up --build",
     "down": "docker-compose down",
-    "build": "docker-compose build"
+    "build": "docker-compose build",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "add": "^2.0.6",
+    "husky": "^9.1.7"
   }
 }

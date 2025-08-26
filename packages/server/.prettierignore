@@ -1,0 +1,14 @@
+node_modules
+coverage
+dist
+build
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+.tmp
+.temp
+.DS_Store
+*.log
+.env
+.env.*
+.husky/
