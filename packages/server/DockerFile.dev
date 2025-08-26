@@ -1,0 +1,16 @@
+# Use the official Node.js 22 Alpine image as a base
+FROM node:22-alpine
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy package.json and yarn.lock FIRST to leverage Docker's layer caching.
+# If these files don't change, Docker won't need to re-run 'yarn install'.
+COPY packages/server/package.json yarn.lock ./
+
+# Install dependencies
+RUN yarn install --frozen-lockfile
+
+# The 'command' in docker-compose.yml will override this,
+# but it's good practice to have a default.
+CMD ["yarn", "dev"]
