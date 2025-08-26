@@ -1,0 +1,27 @@
+
+
+services:
+  # The Backend Service
+  server:
+    container_name: digital_assets_management_server
+    build:
+      context: .
+      dockerfile: packages/server/Dockerfile.dev
+    command: yarn dev
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./packages/server:/app
+      - /app/node_modules
+  # The Frontend Service
+  client:
+    container_name: digital_assets_management_client
+    build:
+      context: .
+      dockerfile: packages/client/Dockerfile.dev
+    command: yarn dev -- --host
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./packages/client:/app
+      - /app/node_modules

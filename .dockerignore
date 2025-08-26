@@ -1,0 +1,12 @@
+# Git
+.git
+.gitignore
+
+# Local dependencies
+node_modules
+packages/client/node_modules
+packages/server/node_modules
+
+# IDE / OS specific
+.DS_Store
+npm-debug.log
