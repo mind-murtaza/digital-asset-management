@@ -8,6 +8,7 @@ import authRoutes from './auth.routes';
 import userRoutes from './user.routes';
 import roleRoutes from './role.routes';
 import organizationRoutes from './organization.routes';
+import docsRoutes from './docs.routes';
 
 // API version headers
 router.use((req, res, next) => {
@@ -21,6 +22,7 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/organizations', organizationRoutes);
+router.use('/docs', docsRoutes);
 
 // API docs overview
 router.get('/', (req, res) => {
@@ -47,7 +49,34 @@ router.get('/', (req, res) => {
                         'DELETE /me': 'Delete user account',
                     },
                 },
-                organizationRoutes: {},
+                organizations: {
+                    base: '/api/v1/organizations',
+                    routes: {
+                        'GET /': 'List organizations',
+                        'POST /': 'Create organization',
+                        'GET /:id': 'Get organization details',
+                        'PATCH /:id': 'Update organization',
+                        'DELETE /:id': 'Delete organization',
+                    },
+                },
+                roles: {
+                    base: '/api/v1/roles',
+                    routes: {
+                        'GET /': 'List roles',
+                        'POST /': 'Create role',
+                        'GET /:id': 'Get role details',
+                        'PATCH /:id': 'Update role',
+                        'DELETE /:id': 'Delete role',
+                    },
+                },
+                documentation: {
+                    base: '/api/v1/docs',
+                    routes: {
+                        'GET /': 'Interactive Swagger UI',
+                        'GET /openapi.json': 'OpenAPI 3.0 specification',
+                        'GET /info': 'API documentation info',
+                    },
+                },
             },
             authentication: {
                 type: 'Bearer JWT token required for protected routes',

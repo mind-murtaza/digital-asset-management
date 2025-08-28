@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { objectIdSchema } from './common.schema';
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+extendZodWithOpenApi(z);
 
 export const organizationStatusSchema = z.enum(['active', 'suspended', 'archived']);
 
@@ -16,7 +18,6 @@ const organizationNameSchema = z
 export const createOrganizationSchema = z
     .object({
         name: organizationNameSchema,
-        ownerId: objectIdSchema,
         status: organizationStatusSchema.optional(),
         settings: z
             .object({
@@ -31,7 +32,21 @@ export const createOrganizationSchema = z
             .partial()
             .optional(),
     })
-    .strict();
+    .strict()
+    .openapi({
+        description: 'Create Organization payload',
+        example: {
+            name: 'New Organization Name',
+            status: 'active',
+            settings: {
+                storageQuotaBytes: 1000000000,
+                featureFlags: {
+                    enablePublicSharing: true,
+                    enableApiAccess: false,
+                },
+            },
+        },
+    });
 
 export const updateOrganizationSchema = z
     .object({
@@ -50,7 +65,21 @@ export const updateOrganizationSchema = z
             .partial()
             .optional(),
     })
-    .strict();
+    .strict()
+    .openapi({
+        description: 'Update Organization payload',
+        example: {
+            name: 'New Organization Name',
+            status: 'archived',
+            settings: {
+                storageQuotaBytes: 1000000000,
+                featureFlags: {
+                    enablePublicSharing: true,
+                    enableApiAccess: false,
+                    },
+                },
+            },
+    });
 
 export const organizationIdParamSchema = z.object({ id: objectIdSchema }).strict();
 

@@ -13,10 +13,14 @@ async function createOrganization(
     data: Partial<IOrganizationDocument>,
 ): Promise<IOrganizationDocument> {
     try {
-        const user = userDao.findById(String(data.ownerId));
+        const user: any = await userDao.findById(String(data.ownerId));
         if (!user) throw new Error('User not found');
+        // Create organization
         const org = new Organization(data);
         await org.save();
+        // Set user's organizationId
+        user.organizationId = org._id;
+        await user.save();
         return org;
     } catch (error: any) {
         throw dbError('DATABASE_ERROR', 'Create organization failed', 500, error);

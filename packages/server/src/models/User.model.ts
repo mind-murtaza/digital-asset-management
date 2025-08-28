@@ -19,6 +19,7 @@ export interface UserProfile {
 }
 
 export interface IUser {
+    organizationId: mongoose.Types.ObjectId;
     email: string;
     password: string;
     profile: UserProfile;
@@ -62,6 +63,7 @@ export interface IUserModel extends Model<IUserDocument> {
 
 const UserSchema = new Schema<IUserDocument, IUserModel>(
     {
+        organizationId: { type: Schema.Types.ObjectId, ref: 'Organization' },
         // Authentication
         email: { type: String, required: true, trim: true },
         password: { type: String, select: false, required: true },

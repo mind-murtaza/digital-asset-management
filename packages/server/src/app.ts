@@ -15,7 +15,7 @@ import { isConnected, getConnectionInfo } from './config/db';
 
 const app = express();
 
-// Security: hide framework details
+
 app.disable('x-powered-by');
 
 // =================================================================
@@ -117,6 +117,9 @@ app.get('/', (req: Request, res: Response) => {
         endpoints: {
             auth: '/api/v1/auth',
             users: '/api/v1/users',
+            organizations: '/api/v1/organizations',
+            roles: '/api/v1/roles',
+            documentation: '/api/v1/docs',
             health: '/health',
         },
     });
@@ -179,7 +182,7 @@ app.use((req: Request, res: Response) => {
         success: false,
         error: 'API endpoint not found',
         message: `Route ${req.method} ${req.path} does not exist`,
-        availableRoutes: ['/api/v1/auth', '/api/v1/users', '/health'],
+        availableRoutes: ['/api/v1/auth', '/api/v1/users', '/api/v1/organizations', '/api/v1/roles', '/api/v1/docs', '/health'],
     });
 });
 
