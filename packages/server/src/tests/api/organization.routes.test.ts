@@ -72,7 +72,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: 'Minimal Test Org',
-                        ownerId: testUserId,
                     })
                     .expect(201);
 
@@ -96,7 +95,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
             it('creates organization with full settings', async () => {
                 const fullOrgData = {
                     name: 'Full Featured Org',
-                    ownerId: testUserId,
                     status: 'suspended',
                     settings: {
                         storageQuotaBytes: 1_000_000_000,
@@ -125,7 +123,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: '   Trimmed Org Name   ',
-                        ownerId: testUserId,
                     })
                     .expect(201);
 
@@ -139,7 +136,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: maxName,
-                        ownerId: testUserId,
                     })
                     .expect(201);
 
@@ -152,7 +148,7 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                 await request(baseUrl)
                     .post('/api/v1/organizations')
                     .set('Authorization', `Bearer ${authToken}`)
-                    .send({ ownerId: testUserId })
+                    .send({})
                     .expect(400);
             });
 
@@ -160,7 +156,7 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                 await request(baseUrl)
                     .post('/api/v1/organizations')
                     .set('Authorization', `Bearer ${authToken}`)
-                    .send({ name: '', ownerId: testUserId })
+                    .send({ name: '' })
                     .expect(400);
             });
 
@@ -168,7 +164,7 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                 await request(baseUrl)
                     .post('/api/v1/organizations')
                     .set('Authorization', `Bearer ${authToken}`)
-                    .send({ name: '   ', ownerId: testUserId })
+                    .send({ name: '   ' })
                     .expect(400);
             });
 
@@ -177,25 +173,11 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                 await request(baseUrl)
                     .post('/api/v1/organizations')
                     .set('Authorization', `Bearer ${authToken}`)
-                    .send({ name: tooLongName, ownerId: testUserId })
+                    .send({ name: tooLongName })
                     .expect(400);
             });
 
-            it('rejects missing ownerId', async () => {
-                await request(baseUrl)
-                    .post('/api/v1/organizations')
-                    .set('Authorization', `Bearer ${authToken}`)
-                    .send({ name: 'Test Org' })
-                    .expect(400);
-            });
-
-            it('rejects invalid ownerId format', async () => {
-                await request(baseUrl)
-                    .post('/api/v1/organizations')
-                    .set('Authorization', `Bearer ${authToken}`)
-                    .send({ name: 'Test Org', ownerId: 'invalid-id' })
-                    .expect(400);
-            });
+            // ownerId is derived from auth; no body ownerId validations
 
             it('rejects invalid status', async () => {
                 await request(baseUrl)
@@ -203,7 +185,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: 'Test Org',
-                        ownerId: testUserId,
                         status: 'invalid-status',
                     })
                     .expect(400);
@@ -215,7 +196,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: 'Test Org',
-                        ownerId: testUserId,
                         settings: { storageQuotaBytes: -1000 },
                     })
                     .expect(400);
@@ -227,7 +207,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: 'Test Org',
-                        ownerId: testUserId,
                         settings: { storageQuotaBytes: 0 },
                     })
                     .expect(400);
@@ -239,7 +218,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: 'Test Org',
-                        ownerId: testUserId,
                         settings: { storageQuotaBytes: 1000.5 },
                     })
                     .expect(400);
@@ -251,7 +229,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: 'Test Org',
-                        ownerId: testUserId,
                         settings: {
                             featureFlags: { enablePublicSharing: 'yes' },
                         },
@@ -265,7 +242,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: 'Test Org',
-                        ownerId: testUserId,
                         unknownField: 'should-be-rejected',
                     })
                     .expect(400);
@@ -276,7 +252,7 @@ describe('Organization API - Comprehensive E2E Tests', () => {
             it('rejects request without auth token', async () => {
                 await request(baseUrl)
                     .post('/api/v1/organizations')
-                    .send({ name: 'Test Org', ownerId: testUserId })
+                    .send({ name: 'Test Org' })
                     .expect(401);
             });
 
@@ -284,7 +260,7 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                 await request(baseUrl)
                     .post('/api/v1/organizations')
                     .set('Authorization', 'Bearer invalid-token')
-                    .send({ name: 'Test Org', ownerId: testUserId })
+                    .send({ name: 'Test Org' })
                     .expect(401);
             });
 
@@ -292,7 +268,7 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                 await request(baseUrl)
                     .post('/api/v1/organizations')
                     .set('Authorization', 'NotBearer token')
-                    .send({ name: 'Test Org', ownerId: testUserId })
+                    .send({ name: 'Test Org' })
                     .expect(401);
             });
         });
@@ -700,7 +676,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                 .set('Authorization', `Bearer ${secondUserToken}`)
                 .send({
                     name: 'Second User Org',
-                    ownerId: secondUserId,
                 })
                 .expect(201);
 
@@ -725,7 +700,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                     .set('Authorization', `Bearer ${authToken}`)
                     .send({
                         name: `Concurrent Org ${i}`,
-                        ownerId: testUserId,
                     }),
             );
 
@@ -751,7 +725,6 @@ describe('Organization API - Comprehensive E2E Tests', () => {
                 .set('Authorization', `Bearer ${authToken}`)
                 .send({
                     name: 'Consistency Test Org',
-                    ownerId: testUserId,
                 })
                 .expect(201);
 

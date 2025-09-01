@@ -9,6 +9,7 @@ import userRoutes from './user.routes';
 import roleRoutes from './role.routes';
 import organizationRoutes from './organization.routes';
 import docsRoutes from './docs.routes';
+import projectRoutes from './project.routes';
 
 // API version headers
 router.use((req, res, next) => {
@@ -22,6 +23,7 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/organizations', organizationRoutes);
+router.use('/projects', projectRoutes);
 router.use('/docs', docsRoutes);
 
 // API docs overview
@@ -57,6 +59,17 @@ router.get('/', (req, res) => {
                         'GET /:id': 'Get organization details',
                         'PATCH /:id': 'Update organization',
                         'DELETE /:id': 'Delete organization',
+                    },
+                },
+                projects: {
+                    base: '/api/v1/projects',
+                    routes: {
+                        'GET /': 'List projects',
+                        'GET /resolve?organizationId&path': 'Resolve project by path',
+                        'POST /': 'Create project',
+                        'GET /:id': 'Get project details',
+                        'PATCH /:id': 'Update project',
+                        'DELETE /:id': 'Soft delete project',
                     },
                 },
                 roles: {

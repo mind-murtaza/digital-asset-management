@@ -22,7 +22,11 @@ function forwardAuthError(err: any, next: NextFunction) {
 async function register(req: Request, res: Response, next: NextFunction) {
     try {
         const result = await authService.register(req.body);
-        res.status(result.statusCode || 201).json(result);
+        res.status(result.statusCode || 201).json({
+            success: true,
+            data: result,
+            message: 'Registration successful',
+        });
     } catch (err) {
         forwardAuthError(err, next);
     }
@@ -31,7 +35,11 @@ async function register(req: Request, res: Response, next: NextFunction) {
 async function login(req: Request, res: Response, next: NextFunction) {
     try {
         const result = await authService.login(req.body.email, req.body.password);
-        res.json({ success: true, data: result, message: 'Login successful' });
+        res.status(result.statusCode || 200).json({
+            success: true,
+            data: result,
+            message: 'Login successful',
+        });
     } catch (err) {
         forwardAuthError(err, next);
     }
@@ -40,7 +48,7 @@ async function login(req: Request, res: Response, next: NextFunction) {
 async function refresh(req: Request, res: Response, next: NextFunction) {
     try {
         const result = await authService.refresh(req.headers.authorization!.slice(7));
-        res.json({
+        res.status(result.statusCode || 200).json({
             success: true,
             data: result,
             message: 'Token refreshed successfully',

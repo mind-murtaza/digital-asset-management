@@ -76,9 +76,9 @@ export const updateOrganizationSchema = z
                 featureFlags: {
                     enablePublicSharing: true,
                     enableApiAccess: false,
-                    },
                 },
             },
+        },
     });
 
 export const organizationIdParamSchema = z.object({ id: objectIdSchema }).strict();

@@ -13,7 +13,8 @@ const userProfileSchema = z
     .strict();
 
 const userStatusSchema = z
-    .enum(['active', 'suspended', 'pending_verification', 'deleted'], 
+    .enum(
+        ['active', 'suspended', 'pending_verification', 'deleted'],
         'Status must be: active, suspended, pending_verification, or deleted',
     )
     .default('active');
@@ -34,9 +35,9 @@ const createUserSchema = z
             password: 'SecurePassword123!',
             profile: {
                 firstName: 'John',
-                lastName: 'Doe'
-            }
-        }
+                lastName: 'Doe',
+            },
+        },
     });
 
 const updateUserSchema = z
@@ -49,9 +50,9 @@ const updateUserSchema = z
         example: {
             profile: {
                 firstName: 'Jane',
-                lastName: 'Smith'
-            }
-        }
+                lastName: 'Smith',
+            },
+        },
     });
 
 const loginSchema = z
@@ -64,8 +65,8 @@ const loginSchema = z
         description: 'User login credentials',
         example: {
             email: 'john.doe@example.com',
-            password: 'SecurePassword123!'
-        }
+            password: 'SecurePassword123!',
+        },
     });
 
 const changePasswordSchema = z
@@ -78,8 +79,8 @@ const changePasswordSchema = z
         description: 'Change password payload',
         example: {
             currentPassword: 'OldPassword123!',
-            newPassword: 'NewSecurePassword456!'
-        }
+            newPassword: 'NewSecurePassword456!',
+        },
     });
 
 const profileUpdateSchema = userProfileSchema
@@ -89,8 +90,8 @@ const profileUpdateSchema = userProfileSchema
         description: 'User profile update payload',
         example: {
             firstName: 'Jane',
-            lastName: 'Smith'
-        }
+            lastName: 'Smith',
+        },
     });
 
 export {

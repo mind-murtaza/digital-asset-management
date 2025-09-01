@@ -45,7 +45,7 @@ function validateEnvironment(): void {
 
 async function startServer(): Promise<void> {
     try {
-        console.log('🚀 Starting Personal Finance Tracker API Server...');
+        console.log(`🚀 Starting ${process.env.APP_NAME} API Server...`);
         console.log(`📊 Environment: ${NODE_ENV}`);
         console.log(`🔧 Node.js Version: ${process.version}`);
         console.log(`💾 Platform: ${process.platform} ${process.arch}`);

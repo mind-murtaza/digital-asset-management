@@ -7,8 +7,14 @@ import { OpenAPIRegistry, OpenApiGeneratorV3 } from '@asteasolutions/zod-to-open
 import { Request, Response, NextFunction } from 'express';
 
 // Import schemas
-import { createUserSchema, loginSchema, changePasswordSchema, profileUpdateSchema } from '../schemas/user.schema';
+import {
+    createUserSchema,
+    loginSchema,
+    changePasswordSchema,
+    profileUpdateSchema,
+} from '../schemas/user.schema';
 import { createOrganizationSchema, updateOrganizationSchema } from '../schemas/organization.schema';
+import { createProjectSchema, updateProjectSchema } from '../schemas/project.schema';
 
 class SwaggerConfig {
     private registry: OpenAPIRegistry;
@@ -25,7 +31,7 @@ class SwaggerConfig {
             type: 'http',
             scheme: 'bearer',
             bearerFormat: 'JWT',
-            description: 'JWT Bearer token authentication'
+            description: 'JWT Bearer token authentication',
         });
 
         // Common error responses
@@ -44,14 +50,14 @@ class SwaggerConfig {
                                     type: 'object',
                                     properties: {
                                         field: { type: 'string' },
-                                        message: { type: 'string' }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+                                        message: { type: 'string' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
         });
 
         this.registry.registerComponent('responses', 'UnauthorizedError', {
@@ -63,11 +69,14 @@ class SwaggerConfig {
                         properties: {
                             success: { type: 'boolean', example: false },
                             error: { type: 'string', example: 'Authentication required' },
-                            message: { type: 'string', example: 'Please provide valid credentials' }
-                        }
-                    }
-                }
-            }
+                            message: {
+                                type: 'string',
+                                example: 'Please provide valid credentials',
+                            },
+                        },
+                    },
+                },
+            },
         });
 
         this.registry.registerComponent('responses', 'NotFoundError', {
@@ -79,68 +88,107 @@ class SwaggerConfig {
                         properties: {
                             success: { type: 'boolean', example: false },
                             error: { type: 'string', example: 'Not found' },
-                            message: { type: 'string', example: 'The requested resource was not found' }
-                        }
-                    }
-                }
-            }
+                            message: {
+                                type: 'string',
+                                example: 'The requested resource was not found',
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
     private registerSchemas() {
-        this.registry.register('CreateUser', createUserSchema.openapi({
-            description: 'User registration payload',
-            example: {
-                email: 'user@example.com',
-                password: 'SecurePassword123!',
-                profile: {
-                    firstName: 'John',
-                    lastName: 'Doe'
-                }
-            }
-        }));
+        this.registry.register(
+            'CreateUser',
+            createUserSchema.openapi({
+                description: 'User registration payload',
+                example: {
+                    email: 'user@example.com',
+                    password: 'SecurePassword123!',
+                    profile: {
+                        firstName: 'John',
+                        lastName: 'Doe',
+                    },
+                },
+            }),
+        );
 
-        this.registry.register('LoginCredentials', loginSchema.openapi({
-            description: 'User login credentials',
-            example: {
-                email: 'user@example.com',
-                password: 'SecurePassword123!'
-            }
-        }));
+        this.registry.register(
+            'LoginCredentials',
+            loginSchema.openapi({
+                description: 'User login credentials',
+                example: {
+                    email: 'user@example.com',
+                    password: 'SecurePassword123!',
+                },
+            }),
+        );
 
-        this.registry.register('ChangePassword', changePasswordSchema.openapi({
-            description: 'Change password payload',
-            example: {
-                currentPassword: 'OldPassword123!',
-                newPassword: 'NewSecurePassword456!'
-            }
-        }));
+        this.registry.register(
+            'ChangePassword',
+            changePasswordSchema.openapi({
+                description: 'Change password payload',
+                example: {
+                    currentPassword: 'OldPassword123!',
+                    newPassword: 'NewSecurePassword456!',
+                },
+            }),
+        );
 
-        this.registry.register('ProfileUpdate', profileUpdateSchema.openapi({
-            description: 'Profile update payload',
-            example: {
-                firstName: 'Jane',
-                lastName: 'Smith'
-            }
-        }));
+        this.registry.register(
+            'ProfileUpdate',
+            profileUpdateSchema.openapi({
+                description: 'Profile update payload',
+                example: {
+                    firstName: 'Jane',
+                    lastName: 'Smith',
+                },
+            }),
+        );
 
-        this.registry.register('CreateOrganization', createOrganizationSchema.openapi({
-            description: 'Create Organization payload',
-            example: {
-                name: 'New Organization Name',
-                status: 'active'
-            }
-        }));
+        this.registry.register(
+            'CreateOrganization',
+            createOrganizationSchema.openapi({
+                description: 'Create Organization payload',
+                example: {
+                    name: 'New Organization Name',
+                    status: 'active',
+                },
+            }),
+        );
 
-        this.registry.register('UpdateOrganization', updateOrganizationSchema.openapi({
+        this.registry.register(
+            'UpdateOrganization',
+            updateOrganizationSchema.openapi({
+                description: 'Update Organization payload',
+                example: {
+                    name: 'New Organization Name',
+                    status: 'archived',
+                },
+            }),
+        );
 
-            description: 'Update Organization payload',
-            example: {
-                name: 'New Organization Name',
-                status: 'archived'
-            }
-        }));
+        // // Project schemas
+        // this.registry.register(
+        //     'CreateProject',
+        //     createProjectSchema.openapi({
+        //         description: 'Create Project payload',
+        //         example: {
+        //             organizationId: '64b0c7f4a2c8a2b3c4d5e6f7',
+        //             name: 'Campaign A',
+        //             path: '/brand/2025/campaign-a',
+        //         },
+        //     }),
+        // );
 
+        // this.registry.register(
+        //     'UpdateProject',
+        //     updateProjectSchema.openapi({
+        //         description: 'Update Project payload',
+        //     }),
+        // );
 
         // Success response schemas
         this.registry.registerComponent('schemas', 'AuthResponse', {
@@ -159,31 +207,39 @@ class SwaggerConfig {
                                     type: 'object',
                                     properties: {
                                         firstName: { type: 'string', example: 'John' },
-                                        lastName: { type: 'string', example: 'Doe' }
-                                    }
+                                        lastName: { type: 'string', example: 'Doe' },
+                                    },
                                 },
-                                status: { type: 'string', enum: ['active', 'suspended', 'pending_verification', 'deleted'] },
+                                status: {
+                                    type: 'string',
+                                    enum: [
+                                        'active',
+                                        'suspended',
+                                        'pending_verification',
+                                        'deleted',
+                                    ],
+                                },
                                 emailVerified: { type: 'boolean', example: true },
                                 createdAt: { type: 'string', format: 'date-time' },
-                                updatedAt: { type: 'string', format: 'date-time' }
-                            }
+                                updatedAt: { type: 'string', format: 'date-time' },
+                            },
                         },
                         tokens: {
                             type: 'object',
                             properties: {
                                 access: { type: 'string', description: 'JWT access token' },
-                                refresh: { type: 'string', description: 'JWT refresh token' }
-                            }
-                        }
-                    }
-                }
-            }
+                                refresh: { type: 'string', description: 'JWT refresh token' },
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
     public generateSpec() {
         const generator = new OpenApiGeneratorV3(this.registry.definitions);
-        
+
         return generator.generateDocument({
             openapi: '3.0.3',
             info: {
@@ -197,6 +253,7 @@ This API provides comprehensive endpoints for:
 - 👥 **User Management** - Profile, preferences, account management  
 - 🏢 **Organization Management** - Multi-tenant organization structure
 - 🛡️ **Role Management** - Granular permissions and access control
+- 📁 **Project Management** - Scoped hierarchies for organizing assets
 
 ## Security
 All protected endpoints require a valid JWT token in the Authorization header:
@@ -218,42 +275,46 @@ API requests are rate-limited per IP address. Contact support if you need higher
                 `,
                 contact: {
                     name: 'API Support',
-                    email: 'support@digitalassets.com'
+                    email: 'support@digitalassets.com',
                 },
                 license: {
                     name: 'MIT',
-                    url: 'https://opensource.org/licenses/MIT'
-                }
+                    url: 'https://opensource.org/licenses/MIT',
+                },
             },
             servers: [
                 {
                     url: 'http://localhost:4000/api/v1',
-                    description: 'Development server'
-                }
+                    description: 'Development server',
+                },
             ],
             security: [
                 {
-                    bearerAuth: []
-                }
+                    bearerAuth: [],
+                },
             ],
             tags: [
                 {
                     name: 'Authentication',
-                    description: 'User authentication and token management'
+                    description: 'User authentication and token management',
                 },
                 {
-                    name: 'Users', 
-                    description: 'User profile and account management'
+                    name: 'Users',
+                    description: 'User profile and account management',
                 },
                 {
                     name: 'Organizations',
-                    description: 'Organization and team management'
+                    description: 'Organization and team management',
+                },
+                {
+                    name: 'Projects',
+                    description: 'Project hierarchy and organization for assets',
                 },
                 {
                     name: 'Roles',
-                    description: 'Role-based access control'
-                }
-            ]
+                    description: 'Role-based access control',
+                },
+            ],
         });
     }
 

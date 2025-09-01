@@ -15,7 +15,6 @@ import { isConnected, getConnectionInfo } from './config/db';
 
 const app = express();
 
-
 app.disable('x-powered-by');
 
 // =================================================================
@@ -109,7 +108,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.get('/', (req: Request, res: Response) => {
     res.json({
         success: true,
-        message: '🚀 Personal Finance Tracker API',
+        message: `🚀 ${process.env.APP_NAME} API`,
         status: 'operational',
         version: '1.0.0',
         timestamp: new Date().toISOString(),
@@ -118,6 +117,7 @@ app.get('/', (req: Request, res: Response) => {
             auth: '/api/v1/auth',
             users: '/api/v1/users',
             organizations: '/api/v1/organizations',
+            projects: '/api/v1/projects',
             roles: '/api/v1/roles',
             documentation: '/api/v1/docs',
             health: '/health',
@@ -182,7 +182,15 @@ app.use((req: Request, res: Response) => {
         success: false,
         error: 'API endpoint not found',
         message: `Route ${req.method} ${req.path} does not exist`,
-        availableRoutes: ['/api/v1/auth', '/api/v1/users', '/api/v1/organizations', '/api/v1/roles', '/api/v1/docs', '/health'],
+        availableRoutes: [
+            '/api/v1/auth',
+            '/api/v1/users',
+            '/api/v1/organizations',
+            '/api/v1/projects',
+            '/api/v1/roles',
+            '/api/v1/docs',
+            '/health',
+        ],
     });
 });
 

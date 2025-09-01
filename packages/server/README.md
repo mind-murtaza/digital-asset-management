@@ -5,6 +5,7 @@ The backend API for the Digital Asset Management (DAM) platform. Built with Node
 ## 🎯 Overview
 
 This Express.js application serves as the backend for the DAM platform, handling:
+
 - User authentication and authorization
 - Asset upload and management
 - Background processing with BullMQ
@@ -29,6 +30,7 @@ This Express.js application serves as the backend for the DAM platform, handling
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+
 - MongoDB 6+
 - Redis 6+
@@ -37,45 +39,49 @@ This Express.js application serves as the backend for the DAM platform, handling
 ### Development Setup
 
 1. **Install dependencies**
-   ```bash
-   yarn install
-   ```
+
+    ```bash
+    yarn install
+    ```
 
 2. **Environment Configuration**
-   ```bash
-   cp .env.example .env
-   ```
 
-   Configure your environment variables:
-   ```env
-   # Database
-   MONGODB_URI=mongodb://localhost:27017/dam-dev
-   REDIS_URL=redis://localhost:6379
+    ```bash
+    cp .env.example .env
+    ```
 
-   # JWT
-   JWT_SECRET=your-super-secret-jwt-key
-   JWT_EXPIRES_IN=24h
+    Configure your environment variables:
 
-   # Storage
-   STORAGE_PROVIDER=minio
-   MINIO_ENDPOINT=localhost:9000
-   MINIO_ACCESS_KEY=minioadmin
-   MINIO_SECRET_KEY=minioadmin
-   MINIO_BUCKET_NAME=dam-assets
+    ```env
+    # Database
+    MONGODB_URI=mongodb://localhost:27017/dam-dev
+    REDIS_URL=redis://localhost:6379
 
-   # Server
-   PORT=3000
-   NODE_ENV=development
-   ```
+    # JWT
+    JWT_SECRET=your-super-secret-jwt-key
+    JWT_EXPIRES_IN=24h
+
+    # Storage
+    STORAGE_PROVIDER=minio
+    MINIO_ENDPOINT=localhost:9000
+    MINIO_ACCESS_KEY=minioadmin
+    MINIO_SECRET_KEY=minioadmin
+    MINIO_BUCKET_NAME=dam-assets
+
+    # Server
+    PORT=3000
+    NODE_ENV=development
+    ```
 
 3. **Start Development Server**
-   ```bash
-   yarn dev
-   ```
+
+    ```bash
+    yarn dev
+    ```
 
 4. **Access the API**
-   - API Base URL: http://localhost:3000
-   - API Documentation: http://localhost:3000/api/docs (if implemented)
+    - API Base URL: http://localhost:3000
+    - API Documentation: http://localhost:3000/api/docs (if implemented)
 
 ## 📁 Project Structure
 
@@ -141,103 +147,107 @@ src/
 ### Core Models
 
 #### Organization
+
 ```typescript
 interface Organization {
-  _id: ObjectId;
-  name: string;
-  status: 'active' | 'suspended' | 'archived';
-  ownerId: ObjectId; // User reference
-  settings: {
-    storageQuotaBytes: number; // Default: 500GB
-    featureFlags: {
-      enablePublicSharing: boolean;
-      enableApiAccess: boolean;
+    _id: ObjectId;
+    name: string;
+    status: 'active' | 'suspended' | 'archived';
+    ownerId: ObjectId; // User reference
+    settings: {
+        storageQuotaBytes: number; // Default: 500GB
+        featureFlags: {
+            enablePublicSharing: boolean;
+            enableApiAccess: boolean;
+        };
     };
-  };
-  createdAt: Date;
-  updatedAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 ```
 
 #### User
+
 ```typescript
 interface User {
-  _id: ObjectId;
-  organizationId: ObjectId;
-  roleId: ObjectId;
-  name: string;
-  email: string;
-  passwordHash: string;
-  status: 'invited' | 'active' | 'deactivated';
-  lastLoginAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+    _id: ObjectId;
+    organizationId: ObjectId;
+    roleId: ObjectId;
+    name: string;
+    email: string;
+    passwordHash: string;
+    status: 'invited' | 'active' | 'deactivated';
+    lastLoginAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 ```
 
 #### Asset
+
 ```typescript
 interface Asset {
-  _id: ObjectId;
-  organizationId: ObjectId;
-  projectId: ObjectId;
-  uploadedBy: ObjectId;
-  originalFilename: string;
-  mimeType: string;
-  assetType: 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO' | 'ARCHIVE' | 'OTHER';
-  fileSizeBytes: number;
-  checksum: string;
-  status: 'uploading' | 'pending' | 'processing' | 'completed' | 'failed';
-  processingError?: string;
-  storageProvider: 'minio' | 's3' | 'gcs';
-  storageKey: string;
-  latestVersion: number;
-  versions: AssetVersion[];
-  tags: string[];
-  metadata: {
-    width?: number;
-    height?: number;
-    duration?: number;
-    codec?: string;
-    bitrate?: number;
-    pageCount?: number;
-  };
-  customMetadata: Map<string, string>;
-  renditions: {
-    thumbnail_small?: Rendition;
-    thumbnail_large?: Rendition;
-    preview_720p?: Rendition;
-  };
-  access: 'private' | 'organization' | 'public';
-  analytics: {
-    viewCount: number;
-    downloadCount: number;
-  };
-  deletedAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+    _id: ObjectId;
+    organizationId: ObjectId;
+    projectId: ObjectId;
+    uploadedBy: ObjectId;
+    originalFilename: string;
+    mimeType: string;
+    assetType: 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO' | 'ARCHIVE' | 'OTHER';
+    fileSizeBytes: number;
+    checksum: string;
+    status: 'uploading' | 'pending' | 'processing' | 'completed' | 'failed';
+    processingError?: string;
+    storageProvider: 'minio' | 's3' | 'gcs';
+    storageKey: string;
+    latestVersion: number;
+    versions: AssetVersion[];
+    tags: string[];
+    metadata: {
+        width?: number;
+        height?: number;
+        duration?: number;
+        codec?: string;
+        bitrate?: number;
+        pageCount?: number;
+    };
+    customMetadata: Map<string, string>;
+    renditions: {
+        thumbnail_small?: Rendition;
+        thumbnail_large?: Rendition;
+        preview_720p?: Rendition;
+    };
+    access: 'private' | 'organization' | 'public';
+    analytics: {
+        viewCount: number;
+        downloadCount: number;
+    };
+    deletedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 ```
 
 #### Processing Job
+
 ```typescript
 interface ProcessingJob {
-  _id: ObjectId;
-  bullJobId: string;
-  assetId: ObjectId;
-  organizationId: ObjectId;
-  jobName: string;
-  status: 'queued' | 'active' | 'completed' | 'failed' | 'retrying';
-  workerId?: string;
-  attempts: number;
-  logs: JobLog[];
-  error?: JobError;
-  queuedAt: Date;
-  startedAt?: Date;
-  completedAt?: Date;
-  durationMs?: number;
-  createdAt: Date;
-  updatedAt: Date;
+    _id: ObjectId;
+    bullJobId: string;
+    assetId: ObjectId;
+    organizationId: ObjectId;
+    jobName: string;
+    status: 'queued' | 'active' | 'completed' | 'failed' | 'retrying';
+    workerId?: string;
+    attempts: number;
+    logs: JobLog[];
+    error?: JobError;
+    queuedAt: Date;
+    startedAt?: Date;
+    completedAt?: Date;
+    durationMs?: number;
+    createdAt: Date;
+    updatedAt: Date;
 }
 ```
 
@@ -263,47 +273,50 @@ yarn db:seed          # Seed database with test data
 ## 🔐 Authentication & Authorization
 
 ### JWT Authentication
+
 ```typescript
 // middleware/auth.ts
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.split(' ')[1];
+    const token = req.headers.authorization?.split(' ')[1];
 
-  if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
-  }
+    if (!token) {
+        return res.status(401).json({ error: 'Access token required' });
+    }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid or expired token' });
-  }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        res.status(401).json({ error: 'Invalid or expired token' });
+    }
 };
 ```
 
 ### Role-Based Access Control
+
 ```typescript
 // middleware/authorization.ts
 export const authorize = (requiredPermissions: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const userRole = await Role.findById(req.user.roleId);
-    const hasPermission = requiredPermissions.every(permission =>
-      userRole?.permissions.includes(permission)
-    );
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const userRole = await Role.findById(req.user.roleId);
+        const hasPermission = requiredPermissions.every((permission) =>
+            userRole?.permissions.includes(permission),
+        );
 
-    if (!hasPermission) {
-      return res.status(403).json({ error: 'Insufficient permissions' });
-    }
+        if (!hasPermission) {
+            return res.status(403).json({ error: 'Insufficient permissions' });
+        }
 
-    next();
-  };
+        next();
+    };
 };
 ```
 
 ## 📡 API Endpoints
 
 ### Authentication
+
 ```
 POST   /api/v1/auth/login
 POST   /api/v1/auth/register
@@ -313,6 +326,7 @@ POST   /api/v1/auth/logout
 ```
 
 ### Assets
+
 ```
 GET    /api/v1/assets
 POST   /api/v1/assets/upload
@@ -324,6 +338,7 @@ GET    /api/v1/assets/:id/preview
 ```
 
 ### Projects
+
 ```
 GET    /api/v1/projects
 POST   /api/v1/projects
@@ -333,6 +348,7 @@ DELETE /api/v1/projects/:id
 ```
 
 ### Organizations
+
 ```
 GET    /api/v1/organizations
 POST   /api/v1/organizations
@@ -344,113 +360,122 @@ DELETE /api/v1/organizations/:id
 ## ⚙️ Background Processing
 
 ### BullMQ Job Queue
+
 ```typescript
 // services/queue.ts
 export class QueueService {
-  private queue: Queue;
+    private queue: Queue;
 
-  constructor() {
-    this.queue = new Queue('asset-processing', {
-      connection: redisConfig
-    });
-  }
+    constructor() {
+        this.queue = new Queue('asset-processing', {
+            connection: redisConfig,
+        });
+    }
 
-  async addAssetProcessingJob(assetId: string, operations: string[]) {
-    await this.queue.add('process-asset', {
-      assetId,
-      operations
-    }, {
-      attempts: 3,
-      backoff: {
-        type: 'exponential',
-        delay: 5000
-      }
-    });
-  }
+    async addAssetProcessingJob(assetId: string, operations: string[]) {
+        await this.queue.add(
+            'process-asset',
+            {
+                assetId,
+                operations,
+            },
+            {
+                attempts: 3,
+                backoff: {
+                    type: 'exponential',
+                    delay: 5000,
+                },
+            },
+        );
+    }
 }
 ```
 
 ### Worker Implementation
+
 ```typescript
 // workers/assetProcessor.ts
 export class AssetProcessor {
-  @process('process-asset')
-  async processAsset(job: Job) {
-    const { assetId, operations } = job.data;
+    @process('process-asset')
+    async processAsset(job: Job) {
+        const { assetId, operations } = job.data;
 
-    for (const operation of operations) {
-      switch (operation) {
-        case 'generate-thumbnails':
-          await this.generateThumbnails(assetId);
-          break;
-        case 'extract-metadata':
-          await this.extractMetadata(assetId);
-          break;
-        case 'transcode-video':
-          await this.transcodeVideo(assetId);
-          break;
-      }
+        for (const operation of operations) {
+            switch (operation) {
+                case 'generate-thumbnails':
+                    await this.generateThumbnails(assetId);
+                    break;
+                case 'extract-metadata':
+                    await this.extractMetadata(assetId);
+                    break;
+                case 'transcode-video':
+                    await this.transcodeVideo(assetId);
+                    break;
+            }
+        }
     }
-  }
 }
 ```
 
 ## 🗂️ File Storage
 
 ### Multi-Provider Support
+
 ```typescript
 // services/storage.ts
 export class StorageService {
-  private provider: StorageProvider;
+    private provider: StorageProvider;
 
-  constructor(providerType: StorageProvider) {
-    switch (providerType) {
-      case 'minio':
-        this.provider = new MinIOProvider();
-        break;
-      case 's3':
-        this.provider = new S3Provider();
-        break;
-      case 'gcs':
-        this.provider = new GCSProvider();
-        break;
+    constructor(providerType: StorageProvider) {
+        switch (providerType) {
+            case 'minio':
+                this.provider = new MinIOProvider();
+                break;
+            case 's3':
+                this.provider = new S3Provider();
+                break;
+            case 'gcs':
+                this.provider = new GCSProvider();
+                break;
+        }
     }
-  }
 
-  async uploadFile(file: Buffer, key: string, mimeType: string) {
-    return this.provider.upload(file, key, mimeType);
-  }
+    async uploadFile(file: Buffer, key: string, mimeType: string) {
+        return this.provider.upload(file, key, mimeType);
+    }
 
-  async downloadFile(key: string) {
-    return this.provider.download(key);
-  }
+    async downloadFile(key: string) {
+        return this.provider.download(key);
+    }
 }
 ```
 
 ## 📊 Analytics & Monitoring
 
 ### Request Logging
+
 ```typescript
 // middleware/logger.ts
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
+    const start = Date.now();
 
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    logger.info({
-      method: req.method,
-      url: req.url,
-      status: res.statusCode,
-      duration: `${duration}ms`,
-      userAgent: req.get('User-Agent')
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        logger.info({
+            method: req.method,
+            url: req.url,
+            status: res.statusCode,
+            duration: `${duration}ms`,
+            userAgent: req.get('User-Agent'),
+        });
     });
-  });
 
-  next();
+    next();
 };
 ```
 
 ### Performance Monitoring
+
 - Request/response times
 - Database query performance
 - Job queue metrics
@@ -486,6 +511,7 @@ yarn test:e2e
 ## 🚢 Deployment
 
 ### Build Process
+
 ```bash
 yarn build
 ```
@@ -493,6 +519,7 @@ yarn build
 This compiles TypeScript to JavaScript in the `dist/` directory.
 
 ### Docker Deployment
+
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -504,6 +531,7 @@ CMD ["node", "index.js"]
 ```
 
 ### Environment Variables for Production
+
 ```env
 NODE_ENV=production
 MONGODB_URI=mongodb://production-db:27017/dam
@@ -522,23 +550,19 @@ JWT_SECRET=your-production-jwt-secret
 ## 🐛 Error Handling
 
 ### Global Error Handler
+
 ```typescript
 // middleware/error.ts
-export const errorHandler = (
-  error: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  logger.error('Unhandled error:', error);
+export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
+    logger.error('Unhandled error:', error);
 
-  // Don't leak error details in production
-  const isDevelopment = process.env.NODE_ENV === 'development';
+    // Don't leak error details in production
+    const isDevelopment = process.env.NODE_ENV === 'development';
 
-  res.status(error.status || 500).json({
-    error: isDevelopment ? error.message : 'Internal server error',
-    ...(isDevelopment && { stack: error.stack })
-  });
+    res.status(error.status || 500).json({
+        error: isDevelopment ? error.message : 'Internal server error',
+        ...(isDevelopment && { stack: error.stack }),
+    });
 };
 ```
 

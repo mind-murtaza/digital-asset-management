@@ -83,7 +83,10 @@ async function login(email: string, password: string) {
         }
         const token = signToken(user);
         await user.updateLastLogin();
-        return { user: sanitizeUser(user), token };
+        return {
+            user: sanitizeUser(user),
+            token,
+        };
     } catch (error: any) {
         if (error.status) throw error;
         const authError: any = new Error('Authentication failed');
@@ -112,7 +115,10 @@ async function refresh(currentToken: string) {
         }
         const newToken = signToken(user);
         await user.updateLastLogin();
-        return { user: sanitizeUser(user), token: newToken };
+        return {
+            user: sanitizeUser(user),
+            token: newToken,
+        };
     } catch (error: any) {
         if (error.status) throw error;
         const authError: any = new Error('Token refresh failed');
@@ -134,11 +140,8 @@ async function register(userData: any) {
         }
         const user = await userDao.createUser(userData);
         return {
-            success: true,
-            token: signToken(user),
             user: sanitizeUser(user),
-            message: 'Registration successful',
-            statusCode: 201,
+            token: signToken(user),
         };
     } catch (error: any) {
         if (error.status) throw error;

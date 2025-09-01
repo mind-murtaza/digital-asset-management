@@ -20,7 +20,7 @@ function forwardOrgError(err: any, next: NextFunction) {
 
 async function create(req: Request, res: Response, next: NextFunction) {
     try {
-        const result = await organizationService.create(req.body);
+        const result = await organizationService.create(req.body, (req as any).auth);
         res.status(201).json({ success: true, data: result });
     } catch (err) {
         forwardOrgError(err, next);

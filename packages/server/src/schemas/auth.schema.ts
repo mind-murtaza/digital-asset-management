@@ -13,7 +13,7 @@ const authHeaderSchema = z
     .openapi({
         description: 'JWT Bearer token in Authorization header',
         example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        format: 'Bearer <jwt-token>'
+        format: 'Bearer <jwt-token>',
     });
 
 export { authHeaderSchema };

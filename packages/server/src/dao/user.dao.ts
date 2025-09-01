@@ -127,7 +127,7 @@ async function changePasswordById(
     newPassword: string,
 ): Promise<void> {
     try {
-        const user = await findById(userId);
+        const user = await findByIdWithPassword(userId);
         if (!user) throw dbError('NOT_FOUND', 'User not found', 404);
         const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
         if (!isPasswordValid) throw dbError('INVALID_CREDENTIALS', 'Invalid password', 401);
@@ -135,6 +135,7 @@ async function changePasswordById(
         const hashed = await bcrypt.hash(newPassword, saltRounds);
         await user.updateOne({ password: hashed });
     } catch (error: any) {
+        if (error.status) throw error;
         throw dbError('DATABASE_ERROR', 'Change password failed', 500, error);
     }
 }

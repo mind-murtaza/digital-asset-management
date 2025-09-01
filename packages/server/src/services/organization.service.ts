@@ -3,6 +3,7 @@
  */
 
 import organizationDao from '../dao/organization.dao';
+import userDao from '../dao/user.dao';
 
 function notFound(): any {
     const err: any = new Error('Organization not found');
@@ -11,14 +12,21 @@ function notFound(): any {
     return err;
 }
 
-async function create(payload: any) {
+async function create(payload: any, auth: any) {
     try {
+        const userId = String(auth.userId);
+        const user: any = await userDao.findById(userId);
+        if (!user) throw new Error('User not found');
+
         const org = await organizationDao.createOrganization({
             name: String(payload.name).trim(),
-            ownerId: payload.ownerId,
+            ownerId: userId,
             status: payload.status ?? 'active',
             settings: payload.settings,
         } as any);
+
+        user.organizationId = org._id;
+        await user.save();
 
         return { organization: org };
     } catch (error: any) {

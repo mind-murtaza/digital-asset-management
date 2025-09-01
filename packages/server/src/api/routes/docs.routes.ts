@@ -55,7 +55,7 @@ router.get('/openapi.json', (req: Request, res: Response) => {
 });
 
 // Serve Swagger UI
-router.use('/', ...swaggerUi.serve as any);
+router.use('/', ...(swaggerUi.serve as any));
 router.get('/', swaggerUi.setup(openApiSpec, swaggerOptions) as any);
 
 // API documentation landing page
