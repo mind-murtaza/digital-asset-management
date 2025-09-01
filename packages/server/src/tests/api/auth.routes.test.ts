@@ -24,9 +24,9 @@ describe('Auth API - Comprehensive E2E Tests', () => {
                 .expect(201);
 
             expect(res.body.success).toBe(true);
-            expect(typeof res.body.token).toBe('string');
-            expect(res.body.user.email).toBe(testUser.email.toLowerCase());
-            expect(res.body.user).toHaveProperty('id');
+            expect(typeof res.body.data.token).toBe('string');
+            expect(res.body.data.user.email).toBe(testUser.email.toLowerCase());
+            expect(res.body.data.user).toHaveProperty('id');
         });
 
         it('rejects duplicate registration', async () => {
