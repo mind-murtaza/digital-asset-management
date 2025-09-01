@@ -26,7 +26,7 @@ const projectAncestorSchema = z.object({
     name: projectNameSchema,
 });
 
-export const createProjectSchema = z
+const createProjectSchema = z
     .object({
         organizationId: objectIdSchema,
         name: projectNameSchema,
@@ -47,7 +47,7 @@ export const createProjectSchema = z
         },
     });
 
-export const updateProjectSchema = z
+const updateProjectSchema = z
     .object({
         name: projectNameSchema.optional(),
         path: projectPathSchema.optional(),
@@ -59,9 +59,9 @@ export const updateProjectSchema = z
         description: 'Update Project payload',
     });
 
-export const projectIdParamSchema = z.object({ id: objectIdSchema }).strict();
+const projectIdParamSchema = z.object({ id: objectIdSchema }).strict();
 
-export const listProjectsQuerySchema = z
+const listProjectsQuerySchema = z
     .object({
         organizationId: objectIdSchema.optional(),
         path: projectPathSchema.optional(),
@@ -70,3 +70,18 @@ export const listProjectsQuerySchema = z
         limit: z.coerce.number().int().positive().max(100).optional(),
     })
     .strict();
+
+const resolveByPathQuerySchema = z
+    .object({
+        organizationId: objectIdSchema,
+        path: projectPathSchema,
+    })
+    .strict();
+
+export {
+    createProjectSchema,
+    updateProjectSchema,
+    projectIdParamSchema,
+    listProjectsQuerySchema,
+    resolveByPathQuerySchema,
+};

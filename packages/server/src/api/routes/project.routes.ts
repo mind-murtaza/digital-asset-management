@@ -8,6 +8,7 @@ import {
     updateProjectSchema,
     projectIdParamSchema,
     listProjectsQuerySchema,
+    resolveByPathQuerySchema,
 } from '../../schemas/project.schema';
 
 const router = Router();
@@ -16,7 +17,7 @@ router.use(auth);
 
 router.post('/', validate(createProjectSchema), controller.create);
 router.get('/', validate(listProjectsQuerySchema, 'query'), controller.list);
-router.get('/resolve', validate(listProjectsQuerySchema, 'query'), controller.resolveByPath);
+router.get('/resolve', validate(resolveByPathQuerySchema, 'query'), controller.resolveByPath);
 router.get('/:id', validate(projectIdParamSchema, 'params'), controller.getById);
 router.patch(
     '/:id',

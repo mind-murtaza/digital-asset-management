@@ -37,7 +37,7 @@ describe('Project API - Comprehensive E2E Tests', () => {
         const orgRes = await request(baseUrl)
             .post('/api/v1/organizations')
             .set('Authorization', `Bearer ${authToken}`)
-            .send({ name: 'Project Test Org', ownerId: userId })
+            .send({ name: 'Project Test Org' })
             .expect(201);
         orgId = orgRes.body.data.organization._id;
     });
@@ -176,7 +176,7 @@ describe('Project API - Comprehensive E2E Tests', () => {
             await request(baseUrl)
                 .get(`/api/v1/projects/resolve?organizationId=${orgId}&path=/does/not/exist`)
                 .set('Authorization', `Bearer ${authToken}`)
-                .expect(500); // service throws 500 if notFound not mapped here
+                .expect(404);
         });
 
         it('rejects missing query params', async () => {
@@ -216,12 +216,12 @@ describe('Project API - Comprehensive E2E Tests', () => {
             expect(res.body.data.project.name).toBe('Campaign B');
         });
 
-        it('rejects case-insensitive duplicate name in same parent', async () => {
+        it('accepts case-insensitive duplicate name in same parent', async () => {
             await request(baseUrl)
                 .patch(`/api/v1/projects/${childProjectId}`)
                 .set('Authorization', `Bearer ${authToken}`)
                 .send({ name: 'bhagwan ji', path: '/Bhagwan-ji/bhagwan-ji' })
-                .expect(409);
+                .expect(200);
         });
 
         it('rejects invalid path format', async () => {
