@@ -1,3 +1,5 @@
 node_modules/
 .env
 Agent.md
+dist/
+.DS_Store

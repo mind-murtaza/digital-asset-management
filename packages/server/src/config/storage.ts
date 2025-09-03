@@ -18,6 +18,7 @@ require('dotenv').config();
  */
 interface StorageConfig {
     endpoint?: string;
+    publicEndpoint?: string;
     region: string;
     credentials: {
         accessKeyId: string;
@@ -44,6 +45,7 @@ export class StorageService {
     private s3Client: S3Client;
     private bucket: string;
     private defaultPresignExpiry: number = 3600; // 1 hour
+    private publicEndpoint?: string;
 
     /**
      * Initialize storage service with configuration
@@ -51,6 +53,7 @@ export class StorageService {
      */
     constructor(config: StorageConfig) {
         this.bucket = config.bucket;
+        this.publicEndpoint = config.publicEndpoint;
         
         const clientConfig: S3ClientConfig = {
             region: config.region,
@@ -64,6 +67,19 @@ export class StorageService {
         }
 
         this.s3Client = new S3Client(clientConfig);
+    }
+
+    private rewriteToPublic(url: string): string {
+        if (!this.publicEndpoint) return url;
+        try {
+            const pub = new URL(this.publicEndpoint);
+            const u = new URL(url);
+            u.protocol = pub.protocol;
+            u.host = pub.host;
+            return u.toString();
+        } catch {
+            return url;
+        }
     }
 
     /**
@@ -87,8 +103,8 @@ export class StorageService {
 
         const url = await getSignedUrl(this.s3Client, command, { expiresIn });
         const expiresAt = new Date(Date.now() + (expiresIn * 1000));
-
-        return { url, expiresAt };
+        const publicUrl = this.rewriteToPublic(url);
+        return { url: publicUrl, expiresAt };
     }
 
     /**
@@ -110,8 +126,8 @@ export class StorageService {
 
         const url = await getSignedUrl(this.s3Client, command, { expiresIn });
         const expiresAt = new Date(Date.now() + (expiresIn * 1000));
-
-        return { url, expiresAt };
+        const publicUrl = this.rewriteToPublic(url);
+        return { url: publicUrl, expiresAt };
     }
 
     /**
@@ -242,6 +258,11 @@ const getStorageConfig = (): StorageConfig => {
     if (process.env.S3_ENDPOINT) {
         config.endpoint = process.env.S3_ENDPOINT;
         config.forcePathStyle = process.env.S3_FORCE_PATH_STYLE !== 'false'; // Default true for MinIO
+    }
+
+    // Optional public endpoint for presigned URLs (host-accessible)
+    if (process.env.S3_PUBLIC_ENDPOINT) {
+        config.publicEndpoint = process.env.S3_PUBLIC_ENDPOINT;
     }
 
     return config;

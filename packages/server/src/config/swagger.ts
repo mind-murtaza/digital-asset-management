@@ -109,8 +109,7 @@ class SwaggerConfig {
     }
 
     private registerSchemas() {
-        try {
-            console.log('🔍 Registering CreateUser schema...');
+        try {            
             this.registry.register(
                 'CreateUser',
                 createUserSchema.openapi({
@@ -124,8 +123,7 @@ class SwaggerConfig {
                         },
                     },
                 }),
-            );
-            console.log('✅ CreateUser schema registered successfully');
+            );            
         } catch (error) {
             console.error('❌ Error registering CreateUser schema:', error);
             throw error;
@@ -207,8 +205,7 @@ class SwaggerConfig {
         );
 
         // Asset schemas
-        try {
-            console.log('🔍 Registering CreateAsset schema...');
+        try {            
             this.registry.register(
                 'CreateAsset',
                 createAssetSchema.openapi({
@@ -228,15 +225,13 @@ class SwaggerConfig {
                         }
                     },
                 }),
-            );
-            console.log('✅ CreateAsset schema registered successfully');
+            );            
         } catch (error) {
             console.error('❌ Error registering CreateAsset schema:', error);
             throw error;
         }
 
-        try {
-            console.log('🔍 Registering FinalizeAsset schema...');
+        try {            
             this.registry.register(
                 'FinalizeAsset',
                 finalizeAssetSchema.openapi({
@@ -247,15 +242,13 @@ class SwaggerConfig {
                         actualFileSizeBytes: 2817345
                     },
                 }),
-            );
-            console.log('✅ FinalizeAsset schema registered successfully');
+            );            
         } catch (error) {
             console.error('❌ Error registering FinalizeAsset schema:', error);
             throw error;
         }
 
-        try {
-            console.log('🔍 Registering UpdateAsset schema...');
+        try {            
             this.registry.register(
                 'UpdateAsset',
                 updateAssetSchema.openapi({
@@ -269,65 +262,56 @@ class SwaggerConfig {
                         }
                     },
                 }),
-            );
-            console.log('✅ UpdateAsset schema registered successfully');
+            );            
         } catch (error) {
             console.error('❌ Error registering UpdateAsset schema:', error);
             throw error;
         }
 
         // Asset response schemas
-        try {
-            console.log('🔍 Registering AssetResponse schema...');
+        try {            
             this.registry.register(
                 'AssetResponse',
                 assetResponseSchema.openapi({
                     description: 'Complete asset information'
                 }),
-            );
-            console.log('✅ AssetResponse schema registered successfully');
+            );            
         } catch (error) {
             console.error('❌ Error registering AssetResponse schema:', error);
             throw error;
         }
 
-        try {
-            console.log('🔍 Registering AssetListResponse schema...');
+        try {            
             this.registry.register(
                 'AssetListResponse',
                 assetListResponseSchema.openapi({
                     description: 'Asset list response with pagination'
                 }),
-            );
-            console.log('✅ AssetListResponse schema registered successfully');
+            );            
         } catch (error) {
             console.error('❌ Error registering AssetListResponse schema:', error);
             throw error;
         }
 
-        try {
-            console.log('🔍 Registering UploadUrlResponse schema...');
+        try {            
             this.registry.register(
                 'UploadUrlResponse',
                 uploadUrlResponseSchema.openapi({
                     description: 'Presigned upload URL response'
                 }),
-            );
-            console.log('✅ UploadUrlResponse schema registered successfully');
+            );            
         } catch (error) {
             console.error('❌ Error registering UploadUrlResponse schema:', error);
             throw error;
         }
 
-        try {
-            console.log('🔍 Registering DownloadUrlResponse schema...');
+        try {            
             this.registry.register(
                 'DownloadUrlResponse',
                 downloadUrlResponseSchema.openapi({
                     description: 'Presigned download URL response'
                 }),
-            );
-            console.log('✅ DownloadUrlResponse schema registered successfully');
+            );            
         } catch (error) {
             console.error('❌ Error registering DownloadUrlResponse schema:', error);
             throw error;
@@ -381,11 +365,9 @@ class SwaggerConfig {
     }
 
     public generateSpec() {
-        try {
-            console.log('🔍 Creating OpenAPI generator...');
+        try {            
             const generator = new OpenApiGeneratorV3(this.registry.definitions);
-            
-            console.log('🔍 Generating OpenAPI document...');
+                        
             return generator.generateDocument({
             openapi: '3.0.3',
             info: {

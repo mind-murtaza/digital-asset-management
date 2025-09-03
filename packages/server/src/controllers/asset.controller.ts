@@ -91,9 +91,25 @@ async function finalizeUpload(req: Request, res: Response, next: NextFunction) {
 async function list(req: Request, res: Response, next: NextFunction) {
     try {
         const result = await assetService.list(req.query as any, (req as any).auth);
+        // Normalize response: convert Mongoose docs to plain objects and flatten refs
+        const normalized = {
+            assets: (result.assets || []).map((asset: any) => {
+                const plainAsset = asset.toObject ? asset.toObject() : asset;
+                return {
+                    ...plainAsset,
+                    assetType: plainAsset.assetType?.toLowerCase() || plainAsset.assetType,
+                    status: plainAsset.status?.toLowerCase() || plainAsset.status,
+                    organizationId: plainAsset.organizationId?._id || plainAsset.organizationId,
+                    projectId: plainAsset.projectId?._id || plainAsset.projectId,
+                    uploadedBy: plainAsset.uploadedBy?._id || plainAsset.uploadedBy,
+                    description: plainAsset.customMetadata?.description
+                };
+            }),
+            pagination: result.pagination
+        };
         res.json({ 
             success: true, 
-            data: result,
+            data: normalized,
             message: 'Assets retrieved successfully'
         });
     } catch (err) {
@@ -109,9 +125,26 @@ async function getById(req: Request, res: Response, next: NextFunction) {
     try {
         const incrementView = (req.query as any).view === 'true';
         const result = await assetService.getById((req.params as any).id, (req as any).auth, incrementView);
+        const asset = result.asset;
+        const plainAsset = asset.toObject ? asset.toObject() : asset;
+        // Convert customMetadata Map to plain object
+        const customMetadataObj = plainAsset.customMetadata instanceof Map ? 
+            Object.fromEntries(plainAsset.customMetadata) : 
+            (plainAsset.customMetadata || {});
+
+        const responseAsset = {
+            ...plainAsset,
+            assetType: plainAsset.assetType?.toLowerCase() || plainAsset.assetType,
+            status: plainAsset.status?.toLowerCase() || plainAsset.status,
+            organizationId: plainAsset.organizationId?._id || plainAsset.organizationId,
+            projectId: plainAsset.projectId?._id || plainAsset.projectId,
+            uploadedBy: plainAsset.uploadedBy?._id || plainAsset.uploadedBy,
+            description: customMetadataObj.description,
+            customMetadata: customMetadataObj
+        };
         res.json({ 
             success: true, 
-            data: result,
+            data: { asset: responseAsset },
             message: 'Asset retrieved successfully'
         });
     } catch (err) {
@@ -126,9 +159,26 @@ async function getById(req: Request, res: Response, next: NextFunction) {
 async function update(req: Request, res: Response, next: NextFunction) {
     try {
         const result = await assetService.update((req.params as any).id, req.body, (req as any).auth);
+        const asset = result.asset;
+        const plainAsset = asset.toObject ? asset.toObject() : asset;
+        // Convert customMetadata Map to plain object
+        const customMetadataObj = plainAsset.customMetadata instanceof Map ? 
+            Object.fromEntries(plainAsset.customMetadata) : 
+            (plainAsset.customMetadata || {});
+
+        const responseAsset = {
+            ...plainAsset,
+            assetType: plainAsset.assetType?.toLowerCase() || plainAsset.assetType,
+            status: plainAsset.status?.toLowerCase() || plainAsset.status,
+            organizationId: plainAsset.organizationId?._id || plainAsset.organizationId,
+            projectId: plainAsset.projectId?._id || plainAsset.projectId,
+            uploadedBy: plainAsset.uploadedBy?._id || plainAsset.uploadedBy,
+            description: customMetadataObj.description,
+            customMetadata: customMetadataObj
+        };
         res.json({ 
             success: true, 
-            data: result,
+            data: { asset: responseAsset },
             message: 'Asset updated successfully'
         });
     } catch (err) {
@@ -159,8 +209,23 @@ async function getDownloadUrl(req: Request, res: Response, next: NextFunction) {
  */
 async function softDelete(req: Request, res: Response, next: NextFunction) {
     try {
-        await assetService.softDelete((req.params as any).id, (req as any).auth);
-        res.status(204).send();
+        const result = await assetService.softDelete((req.params as any).id, (req as any).auth);
+        const asset = result.asset;
+        const plainAsset = asset.toObject ? asset.toObject() : asset;
+        const responseAsset = {
+            ...plainAsset,
+            assetType: plainAsset.assetType?.toLowerCase() || plainAsset.assetType,
+            status: plainAsset.status?.toLowerCase() || plainAsset.status,
+            organizationId: plainAsset.organizationId?._id || plainAsset.organizationId,
+            projectId: plainAsset.projectId?._id || plainAsset.projectId,
+            uploadedBy: plainAsset.uploadedBy?._id || plainAsset.uploadedBy,
+            description: plainAsset.customMetadata?.description
+        };
+        res.json({ 
+            success: true, 
+            data: { asset: responseAsset },
+            message: 'Asset deleted successfully'
+        });
     } catch (err) {
         forwardAssetError(err, next);
     }

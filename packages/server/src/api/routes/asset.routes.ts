@@ -15,6 +15,8 @@ import {
     assetIdParamSchema,
     listAssetsQuerySchema,
 } from '../../schemas/asset.schema';
+import { z } from 'zod';
+import { validate as validateMw } from '../middlewares/validate';
 
 const router = Router();
 
@@ -443,6 +445,7 @@ router.patch('/:id',
  */
 router.post('/:id/tags', 
     validate(assetIdParamSchema, 'params'),
+    validateMw(z.object({ tags: z.array(z.string().min(1).max(50).regex(/^[a-z0-9-]+$/i)).max(10) })),
     controller.addTags
 );
 
@@ -483,6 +486,7 @@ router.post('/:id/tags',
  */
 router.put('/:id/tags', 
     validate(assetIdParamSchema, 'params'),
+    validateMw(z.object({ tags: z.array(z.string().min(1).max(50).regex(/^[a-z0-9-]+$/i)).max(20) })),
     controller.replaceTags
 );
 
