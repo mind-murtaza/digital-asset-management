@@ -14,6 +14,8 @@ import {
     updateAssetSchema,
     assetIdParamSchema,
     listAssetsQuerySchema,
+    addTagsSchema,
+    replaceTagsSchema,
 } from '../../schemas/asset.schema';
 import { z } from 'zod';
 import { validate as validateMw } from '../middlewares/validate';
@@ -443,9 +445,9 @@ router.patch('/:id',
  *       200:
  *         description: Tags added successfully
  */
-router.post('/:id/tags', 
+router.post('/:id/tags',
     validate(assetIdParamSchema, 'params'),
-    validateMw(z.object({ tags: z.array(z.string().min(1).max(50).regex(/^[a-z0-9-]+$/i)).max(10) })),
+    validate(addTagsSchema),
     controller.addTags
 );
 
@@ -484,9 +486,9 @@ router.post('/:id/tags',
  *       200:
  *         description: Tags updated successfully
  */
-router.put('/:id/tags', 
+router.put('/:id/tags',
     validate(assetIdParamSchema, 'params'),
-    validateMw(z.object({ tags: z.array(z.string().min(1).max(50).regex(/^[a-z0-9-]+$/i)).max(20) })),
+    validate(replaceTagsSchema),
     controller.replaceTags
 );
 

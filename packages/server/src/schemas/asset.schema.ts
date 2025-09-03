@@ -540,6 +540,38 @@ const downloadUrlResponseSchema = z.object({
     description: 'Presigned download URL response for asset access'
 })
 
+// Schema for adding tags to an asset
+const addTagsSchema = z.object({
+    tags: z.array(
+        z.string()
+         .min(1)
+         .max(50)
+         .regex(/^[a-z0-9-]+$/i, 'Invalid tag format')
+         .transform(s => s.trim())
+    ).max(10).openapi({
+        description: 'Tags to add (max 10)',
+        example: ['new-tag', 'another']
+    })
+}).openapi({
+    description: 'Payload to add tags to an asset'
+});
+
+// Schema for replacing tags on an asset
+const replaceTagsSchema = z.object({
+    tags: z.array(
+        z.string()
+         .min(1)
+         .max(50)
+         .regex(/^[a-z0-9-]+$/i, 'Invalid tag format')
+         .transform(s => s.trim())
+    ).max(20).openapi({
+        description: 'Tags to set on the asset (max 20)',
+        example: ['tag1', 'tag2', 'tag3']
+    })
+}).openapi({
+    description: 'Payload to replace all tags on an asset'
+});
+
 export {
     createAssetSchema,
     finalizeAssetSchema,
@@ -550,6 +582,8 @@ export {
     assetListResponseSchema,
     uploadUrlResponseSchema,
     downloadUrlResponseSchema,
+    addTagsSchema,
+    replaceTagsSchema,
 }
 
 
