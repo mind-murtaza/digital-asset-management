@@ -10,6 +10,7 @@ import roleRoutes from './role.routes';
 import organizationRoutes from './organization.routes';
 import docsRoutes from './docs.routes';
 import projectRoutes from './project.routes';
+import assetRoutes from './asset.routes';
 
 // API version headers
 router.use((req, res, next) => {
@@ -24,6 +25,7 @@ router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/organizations', organizationRoutes);
 router.use('/projects', projectRoutes);
+router.use('/assets', assetRoutes);
 router.use('/docs', docsRoutes);
 
 // API docs overview
@@ -72,6 +74,26 @@ router.get('/', (req, res) => {
                         'DELETE /:id': 'Soft delete project',
                     },
                 },
+                assets: {
+                    base: '/api/v1/assets',
+                    routes: {
+                        'POST /uploads': 'Generate presigned upload URL',
+                        'POST /:id/finalize': 'Finalize asset upload and trigger processing',
+                        'GET /': 'List assets with filtering and pagination',
+                        'GET /analytics': 'Get asset analytics summary',
+                        'GET /search?q': 'Search assets by text',
+                        'GET /recent': 'Get recently uploaded assets',
+                        'GET /by-project/:projectId': 'Get assets by project',
+                        'GET /by-tag/:tag': 'Get assets by tag',
+                        'GET /:id': 'Get asset details',
+                        'GET /:id/download': 'Generate presigned download URL',
+                        'PATCH /:id': 'Update asset metadata',
+                        'POST /:id/tags': 'Add tags to asset',
+                        'PUT /:id/tags': 'Replace asset tags',
+                        'POST /:id/retry': 'Retry failed asset processing',
+                        'DELETE /:id': 'Soft delete asset and queue cleanup',
+                    },
+                },
                 roles: {
                     base: '/api/v1/roles',
                     routes: {
@@ -100,6 +122,11 @@ router.get('/', (req, res) => {
                 'JWT-based authentication',
                 'Comprehensive input validation',
                 'User profile and settings management',
+                'Multi-tenant asset management',
+                'Presigned URL uploads/downloads',
+                'Background asset processing',
+                'Image and video renditions',
+                'Asset analytics and search',
             ],
             status: 'Production Ready',
         },

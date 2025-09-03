@@ -15,6 +15,15 @@ import {
 } from '../schemas/user.schema';
 import { createOrganizationSchema, updateOrganizationSchema } from '../schemas/organization.schema';
 import { createProjectSchema, updateProjectSchema } from '../schemas/project.schema';
+import {
+    createAssetSchema,
+    finalizeAssetSchema,
+    updateAssetSchema,
+    assetResponseSchema,
+    assetListResponseSchema,
+    uploadUrlResponseSchema,
+    downloadUrlResponseSchema,
+} from '../schemas/asset.schema';
 
 class SwaggerConfig {
     private registry: OpenAPIRegistry;
@@ -100,20 +109,27 @@ class SwaggerConfig {
     }
 
     private registerSchemas() {
-        this.registry.register(
-            'CreateUser',
-            createUserSchema.openapi({
-                description: 'User registration payload',
-                example: {
-                    email: 'user@example.com',
-                    password: 'SecurePassword123!',
-                    profile: {
-                        firstName: 'John',
-                        lastName: 'Doe',
+        try {
+            console.log('🔍 Registering CreateUser schema...');
+            this.registry.register(
+                'CreateUser',
+                createUserSchema.openapi({
+                    description: 'User registration payload',
+                    example: {
+                        email: 'user@example.com',
+                        password: 'SecurePassword123!',
+                        profile: {
+                            firstName: 'John',
+                            lastName: 'Doe',
+                        },
                     },
-                },
-            }),
-        );
+                }),
+            );
+            console.log('✅ CreateUser schema registered successfully');
+        } catch (error) {
+            console.error('❌ Error registering CreateUser schema:', error);
+            throw error;
+        }
 
         this.registry.register(
             'LoginCredentials',
@@ -170,25 +186,152 @@ class SwaggerConfig {
             }),
         );
 
-        // // Project schemas
-        // this.registry.register(
-        //     'CreateProject',
-        //     createProjectSchema.openapi({
-        //         description: 'Create Project payload',
-        //         example: {
-        //             organizationId: '64b0c7f4a2c8a2b3c4d5e6f7',
-        //             name: 'Campaign A',
-        //             path: '/brand/2025/campaign-a',
-        //         },
-        //     }),
-        // );
+        // Project schemas
+        this.registry.register(
+            'CreateProject',
+            createProjectSchema.openapi({
+                description: 'Create Project payload',
+                example: {
+                    organizationId: '64b0c7f4a2c8a2b3c4d5e6f7',
+                    name: 'Campaign A',
+                    path: '/brand/2025/campaign-a',
+                },
+            }),
+        );
 
-        // this.registry.register(
-        //     'UpdateProject',
-        //     updateProjectSchema.openapi({
-        //         description: 'Update Project payload',
-        //     }),
-        // );
+        this.registry.register(
+            'UpdateProject',
+            updateProjectSchema.openapi({
+                description: 'Update Project payload',
+            }),
+        );
+
+        // Asset schemas
+        try {
+            console.log('🔍 Registering CreateAsset schema...');
+            this.registry.register(
+                'CreateAsset',
+                createAssetSchema.openapi({
+                    description: 'Asset creation payload for upload initiation',
+                    example: {
+                        organizationId: '64b0c7f4a2c8a2b3c4d5e6f7',
+                        projectId: '64b0c7f4a2c8a2b3c4d5e6f8',
+                        originalFilename: 'hero-image.jpg',
+                        mimeType: 'image/jpeg',
+                        fileSizeBytes: 2817345,
+                        checksum: 'sha256:8a9c4f2e1b3d5a7c9f8e1b2d4a6c8e0f1b3d5a7c9f8e1b2d4a6c8e0f1b3d5a7c',
+                        tags: ['homepage', 'brand', 'hero'],
+                        access: 'organization',
+                        customMetadata: {
+                            license: 'royalty-free',
+                            photographer: 'John Doe'
+                        }
+                    },
+                }),
+            );
+            console.log('✅ CreateAsset schema registered successfully');
+        } catch (error) {
+            console.error('❌ Error registering CreateAsset schema:', error);
+            throw error;
+        }
+
+        try {
+            console.log('🔍 Registering FinalizeAsset schema...');
+            this.registry.register(
+                'FinalizeAsset',
+                finalizeAssetSchema.openapi({
+                    description: 'Asset finalization payload after successful upload',
+                    example: {
+                        assetId: '64b0c7f4a2c8a2b3c4d5e6f9',
+                        actualChecksum: 'sha256:8a9c4f2e1b3d5a7c9f8e1b2d4a6c8e0f1b3d5a7c9f8e1b2d4a6c8e0f1b3d5a7c',
+                        actualFileSizeBytes: 2817345
+                    },
+                }),
+            );
+            console.log('✅ FinalizeAsset schema registered successfully');
+        } catch (error) {
+            console.error('❌ Error registering FinalizeAsset schema:', error);
+            throw error;
+        }
+
+        try {
+            console.log('🔍 Registering UpdateAsset schema...');
+            this.registry.register(
+                'UpdateAsset',
+                updateAssetSchema.openapi({
+                    description: 'Asset update payload for modifying tags, access, or metadata',
+                    example: {
+                        tags: ['updated', 'brand', 'campaign'],
+                        access: 'public',
+                        customMetadata: {
+                            campaign: '2025-spring',
+                            status: 'approved'
+                        }
+                    },
+                }),
+            );
+            console.log('✅ UpdateAsset schema registered successfully');
+        } catch (error) {
+            console.error('❌ Error registering UpdateAsset schema:', error);
+            throw error;
+        }
+
+        // Asset response schemas
+        try {
+            console.log('🔍 Registering AssetResponse schema...');
+            this.registry.register(
+                'AssetResponse',
+                assetResponseSchema.openapi({
+                    description: 'Complete asset information'
+                }),
+            );
+            console.log('✅ AssetResponse schema registered successfully');
+        } catch (error) {
+            console.error('❌ Error registering AssetResponse schema:', error);
+            throw error;
+        }
+
+        try {
+            console.log('🔍 Registering AssetListResponse schema...');
+            this.registry.register(
+                'AssetListResponse',
+                assetListResponseSchema.openapi({
+                    description: 'Asset list response with pagination'
+                }),
+            );
+            console.log('✅ AssetListResponse schema registered successfully');
+        } catch (error) {
+            console.error('❌ Error registering AssetListResponse schema:', error);
+            throw error;
+        }
+
+        try {
+            console.log('🔍 Registering UploadUrlResponse schema...');
+            this.registry.register(
+                'UploadUrlResponse',
+                uploadUrlResponseSchema.openapi({
+                    description: 'Presigned upload URL response'
+                }),
+            );
+            console.log('✅ UploadUrlResponse schema registered successfully');
+        } catch (error) {
+            console.error('❌ Error registering UploadUrlResponse schema:', error);
+            throw error;
+        }
+
+        try {
+            console.log('🔍 Registering DownloadUrlResponse schema...');
+            this.registry.register(
+                'DownloadUrlResponse',
+                downloadUrlResponseSchema.openapi({
+                    description: 'Presigned download URL response'
+                }),
+            );
+            console.log('✅ DownloadUrlResponse schema registered successfully');
+        } catch (error) {
+            console.error('❌ Error registering DownloadUrlResponse schema:', error);
+            throw error;
+        }
 
         // Success response schemas
         this.registry.registerComponent('schemas', 'AuthResponse', {
@@ -238,9 +381,12 @@ class SwaggerConfig {
     }
 
     public generateSpec() {
-        const generator = new OpenApiGeneratorV3(this.registry.definitions);
-
-        return generator.generateDocument({
+        try {
+            console.log('🔍 Creating OpenAPI generator...');
+            const generator = new OpenApiGeneratorV3(this.registry.definitions);
+            
+            console.log('🔍 Generating OpenAPI document...');
+            return generator.generateDocument({
             openapi: '3.0.3',
             info: {
                 title: 'Digital Asset Management API',
@@ -254,6 +400,9 @@ This API provides comprehensive endpoints for:
 - 🏢 **Organization Management** - Multi-tenant organization structure
 - 🛡️ **Role Management** - Granular permissions and access control
 - 📁 **Project Management** - Scoped hierarchies for organizing assets
+- 🎯 **Asset Management** - Upload, processing, versioning, and delivery
+- ☁️ **Storage Integration** - MinIO/S3 with presigned URLs
+- ⚡ **Background Processing** - Image/video renditions and metadata extraction
 
 ## Security
 All protected endpoints require a valid JWT token in the Authorization header:
@@ -311,11 +460,20 @@ API requests are rate-limited per IP address. Contact support if you need higher
                     description: 'Project hierarchy and organization for assets',
                 },
                 {
+                    name: 'Assets',
+                    description: 'Digital asset upload, processing, and management',
+                },
+                {
                     name: 'Roles',
                     description: 'Role-based access control',
                 },
             ],
         });
+    }
+    catch (error) {
+        console.error('❌ Error generating OpenAPI document:', error);
+        throw error;
+    }
     }
 
     public getRegistry(): OpenAPIRegistry {

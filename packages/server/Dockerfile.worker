@@ -1,0 +1,55 @@
+# ================================
+# Digital Asset Management - Background Worker
+# Monorepo Structure - Server Package Workers
+# ================================
+
+FROM node:18-alpine
+
+# Install system dependencies for Sharp, FFmpeg, and media processing
+RUN apk add --no-cache \
+    ffmpeg \
+    ffmpeg-dev \
+    vips-dev \
+    imagemagick \
+    python3 \
+    make \
+    g++ \
+    libc6-compat \
+    curl
+
+# Create app directory
+WORKDIR /app
+
+# Copy root package.json and yarn.lock for monorepo dependencies
+COPY package.json yarn.lock ./
+# Copy workspace package.json files for better Docker layer caching
+COPY packages/server/package.json packages/server/package.json
+COPY packages/client/package.json packages/client/package.json
+
+# Install dependencies from root (uses root yarn.lock and hoisted node_modules)
+RUN yarn install --frozen-lockfile
+
+# Copy entire monorepo source code
+COPY . ./
+
+# Build TypeScript using workspace command
+RUN yarn workspace server build
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S dam-worker -u 1001 -G nodejs
+
+# Create temp directory for processing
+RUN mkdir -p /tmp/dam-processing && \
+    chown -R dam-worker:nodejs /tmp/dam-processing
+
+# Change ownership
+RUN chown -R dam-worker:nodejs /app
+USER dam-worker
+
+# Health check - verify worker can connect to Redis
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD node -e "console.log('Worker health check - OK')" || exit 1
+
+# Start the background workers from compiled workspace
+CMD ["node", "packages/server/dist/workers/index.js"]

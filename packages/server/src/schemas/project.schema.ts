@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { objectIdSchema } from './common.schema';
+import { objectIdOpenApi } from './common.schema';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 extendZodWithOpenApi(z);
 
@@ -22,13 +22,13 @@ const projectPathSchema = z
     .max(1024, 'Project path too long');
 
 const projectAncestorSchema = z.object({
-    _id: objectIdSchema,
+    _id: objectIdOpenApi,
     name: projectNameSchema,
 });
 
 const createProjectSchema = z
     .object({
-        organizationId: objectIdSchema,
+        organizationId: objectIdOpenApi,
         name: projectNameSchema,
         path: projectPathSchema,
         ancestors: z.array(projectAncestorSchema).default([]).optional(),
@@ -59,13 +59,13 @@ const updateProjectSchema = z
         description: 'Update Project payload',
     });
 
-const projectIdParamSchema = z.object({ id: objectIdSchema }).strict();
+const projectIdParamSchema = z.object({ id: objectIdOpenApi }).strict();
 
 const listProjectsQuerySchema = z
     .object({
-        organizationId: objectIdSchema.optional(),
+        organizationId: objectIdOpenApi.optional(),
         path: projectPathSchema.optional(),
-        ancestorId: objectIdSchema.optional(),
+        ancestorId: objectIdOpenApi.optional(),
         page: z.coerce.number().int().positive().max(100000).optional(),
         limit: z.coerce.number().int().positive().max(100).optional(),
     })
@@ -73,7 +73,7 @@ const listProjectsQuerySchema = z
 
 const resolveByPathQuerySchema = z
     .object({
-        organizationId: objectIdSchema,
+        organizationId: objectIdOpenApi,
         path: projectPathSchema,
     })
     .strict();

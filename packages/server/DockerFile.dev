@@ -1,16 +1,52 @@
-# Use the official Node.js 22 Alpine image as a base
-FROM node:22-alpine
+# ================================
+# Digital Asset Management - API Server (Development)
+# Monorepo Structure - Server Package
+# ================================
 
-# Set the working directory inside the container
+FROM node:18-alpine
+
+# Install system dependencies for Sharp and FFmpeg
+RUN apk add --no-cache \
+    ffmpeg \
+    vips-dev \
+    python3 \
+    make \
+    g++ \
+    libc6-compat \
+    curl
+
+# Create app directory
 WORKDIR /app
 
-# Copy package.json and yarn.lock FIRST to leverage Docker's layer caching.
-# If these files don't change, Docker won't need to re-run 'yarn install'.
-COPY packages/server/package.json yarn.lock ./
+# Copy root package.json and yarn.lock for monorepo dependencies
+COPY package.json yarn.lock ./
+# Copy workspace package.json files for better Docker layer caching
+COPY packages/server/package.json packages/server/package.json
+COPY packages/client/package.json packages/client/package.json
 
-# Install dependencies
+# Install dependencies from root (uses root yarn.lock and hoisted node_modules)
 RUN yarn install --frozen-lockfile
 
-# The 'command' in docker-compose.yml will override this,
-# but it's good practice to have a default.
-CMD ["yarn", "dev"]
+# Copy entire monorepo source code
+COPY . ./
+
+# Build TypeScript using workspace command
+RUN yarn workspace server build
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S dam -u 1001 -G nodejs
+
+# Change ownership
+RUN chown -R dam:nodejs /app
+USER dam
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:4000/api/v1/ || exit 1
+
+# Expose port
+EXPOSE 4000
+
+# Start the API server from compiled workspace
+CMD ["node", "packages/server/dist/index.js"]

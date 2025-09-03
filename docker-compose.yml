@@ -1,19 +1,192 @@
-
+version: '3.8'
 
 services:
+  # ================================
+  # Redis - BullMQ Queue Management  
+  # ================================
+  redis:
+    image: redis:7.2-alpine
+    container_name: dam-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass redispassword123
+    volumes:
+      - redis_data:/data
+    networks:
+      - dam-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ================================
+  # MinIO Object Storage
+  # ================================
+  minio:
+    image: minio/minio:latest
+    container_name: dam-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+      MINIO_DEFAULT_BUCKETS: dam-assets
+    volumes:
+      - minio_data:/data
+    networks:
+      - dam-network
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ================================
+  # MinIO Client - Create Buckets
+  # ================================
+  minio-client:
+    image: minio/mc:latest
+    container_name: dam-minio-client
+    depends_on:
+      - minio
+    networks:
+      - dam-network
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10;
+      /usr/bin/mc config host add minio http://minio:9000 minioadmin minioadmin123;
+      /usr/bin/mc mb minio/dam-assets --ignore-existing;
+      /usr/bin/mc policy set public minio/dam-assets;
+      /usr/bin/mc admin info minio;
+      exit 0;
+      "
+
+  # ================================
+  # BullMQ Dashboard (Optional)
+  # ================================
+  bullmq-dashboard:
+    image: deadly0/bull-board:latest
+    container_name: dam-bullmq-dashboard
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: redispassword123
+      REDIS_DB: 0
+    networks:
+      - dam-network
+    depends_on:
+      - redis
+
+  # ================================
   # The Backend Service
+  # ================================
   server:
     container_name: digital_assets_management_server
     build:
       context: .
       dockerfile: packages/server/Dockerfile.dev
-    command: yarn dev
+    command: yarn workspace server dev
     ports:
       - "4000:4000"
+    environment:
+      # Database (External MongoDB - adjust MONGO_URI as needed)
+      MONGO_URI: mongodb+srv://mindfire-assignment:utxpK8Okx9itxCyQ@mindfire-assignment-1-p.ef7qqaa.mongodb.net/
+      MONGO_DB: dam_dev
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: redispassword123
+      REDIS_DB: 0
+      REDIS_KEY_PREFIX: "dam:"
+      
+      # JWT
+      JWT_SECRET: development-jwt-secret-change-in-production
+      JWT_EXPIRES_IN: 24h
+      
+      # MinIO/S3
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY_ID: minioadmin
+      S3_SECRET_ACCESS_KEY: minioadmin123
+      S3_BUCKET_NAME: dam-assets
+      S3_REGION: us-east-1
+      S3_FORCE_PATH_STYLE: true
+      
+      # Processing
+      WORKER_CONCURRENCY: 3
+      MAX_FILE_SIZE_BYTES: 5368709120
+      
     volumes:
-      - ./packages/server:/app
+      - .:/app
       - /app/node_modules
+    networks:
+      - dam-network
+    depends_on:
+      - redis
+      - minio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/v1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ================================
+  # Background Workers
+  # ================================
+  worker:
+    container_name: digital_assets_management_worker
+    build:
+      context: .
+      dockerfile: packages/server/Dockerfile.worker
+    command: yarn workspace server worker
+    environment:
+      # Database (External MongoDB - same as server)
+      MONGO_URI: mongodb+srv://mindfire-assignment:utxpK8Okx9itxCyQ@mindfire-assignment-1-p.ef7qqaa.mongodb.net/
+      MONGO_DB: dam_dev
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: redispassword123
+      REDIS_DB: 0
+      REDIS_KEY_PREFIX: "dam:"
+      
+      # MinIO/S3
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY_ID: minioadmin
+      S3_SECRET_ACCESS_KEY: minioadmin123
+      S3_BUCKET_NAME: dam-assets
+      S3_REGION: us-east-1
+      S3_FORCE_PATH_STYLE: true
+      
+      # Processing
+      WORKER_CONCURRENCY: 5
+      FFMPEG_PATH: /usr/bin/ffmpeg
+      FFPROBE_PATH: /usr/bin/ffprobe
+      
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - dam-network
+    depends_on:
+      - redis
+      - minio
+      - server
+    deploy:
+      replicas: 1
+
+  # ================================
   # The Frontend Service
+  # ================================
   client:
     container_name: digital_assets_management_client
     build:
@@ -25,3 +198,22 @@ services:
     volumes:
       - ./packages/client:/app
       - /app/node_modules
+    networks:
+      - dam-network
+
+# ================================
+# Networks
+# ================================
+networks:
+  dam-network:
+    driver: bridge
+    name: dam-network
+
+# ================================
+# Persistent Volumes
+# ================================
+volumes:
+  redis_data:
+    name: dam-redis-data
+  minio_data:
+    name: dam-minio-data

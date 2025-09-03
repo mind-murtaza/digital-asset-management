@@ -87,6 +87,7 @@ const profileUpdateSchema = userProfileSchema
     .partial()
     .refine((data: any) => Object.keys(data).length > 0, 'At least one field is required')
     .openapi({
+        type: 'object',
         description: 'User profile update payload',
         example: {
             firstName: 'Jane',
